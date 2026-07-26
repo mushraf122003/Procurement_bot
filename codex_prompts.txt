@@ -1,0 +1,9 @@
+I am creating a procurement bot using langchain, langraph, google llm model, Hugingface data chunking and embedding models. Create an folder in this project folder and name it as code. inside the code folder I want you to write the code first for data ingestion pipeline. where I will puling the PDF files and Excel files from my folder called data which present in the project folder itself. then I need to perform chunking and embedding for the files using langchain document loaders. then I need this data to be transformed and stored in Mongo DB Atlas in and create an Vector search index to perform Vector search. 
+
+Then create the retravel pipeline where we get the user query and perform embedding on that query and use that to retrieve the context from the Mongo DB using Vector search.
+
+Now in the same code folder, create a file to initialize the google llm model using google API. and this model should generate the answer based on the prompt and context provided by the Mongo DB i.e. retrieve function.
+
+create an Langgraph connection where with the Graph like, Start-> User gives the query->go to llm model-> llm model decided whether to call the Mongo DB retrive tool or not -> after calling the tool, prompt+context should go back to the llm model-> check if again or any other tool needs to be called-> if not the llm should generate the reponse -> end. basically the graph should look like the below image.
+
+Prepare me a word document which describe the flow /pipelines and architecture of this RAG project.  Don't make any changes in the code with this prompt, just prepare me a downloadable word document.

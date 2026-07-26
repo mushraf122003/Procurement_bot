@@ -7,8 +7,8 @@ from typing import Any
 
 from pymongo import MongoClient
 
-from code.config import Settings
-from code.ingest import get_embeddings
+from .config import Settings
+from .ingest import get_embeddings
 
 
 def retrieve(query: str, limit: int, settings: Settings) -> list[dict[str, Any]]:
