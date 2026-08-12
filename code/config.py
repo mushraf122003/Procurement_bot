@@ -21,6 +21,9 @@ class Settings:
     data_dir: Path
     chunk_size: int
     chunk_overlap: int
+    mysql_uri: str
+    mysql_purchase_order_tables: str
+    mysql_invoice_tables: str
 
     @classmethod
     def from_environment(cls) -> "Settings":
@@ -40,4 +43,7 @@ class Settings:
             data_dir=Path(os.environ.get("DATA_DIR", PROJECT_ROOT / "data")),
             chunk_size=int(os.environ.get("CHUNK_SIZE", "1000")),
             chunk_overlap=int(os.environ.get("CHUNK_OVERLAP", "150")),
+            mysql_uri=os.environ.get("MYSQL_URI", ""),
+            mysql_purchase_order_tables=os.environ.get("MYSQL_PURCHASE_ORDER_TABLES", ""),
+            mysql_invoice_tables=os.environ.get("MYSQL_INVOICE_TABLES", ""),
         )

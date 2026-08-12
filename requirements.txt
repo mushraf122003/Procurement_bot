@@ -6,6 +6,7 @@ langchain-groq
 langchain-huggingface
 langgraph
 pymongo
+pymysql
 langchain-google-genai
 langchain-text-splitters
 pypdf

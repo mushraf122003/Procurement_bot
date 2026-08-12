@@ -13,15 +13,17 @@ from langgraph.prebuilt import ToolNode, tools_condition
 
 from code.config import Settings
 from code.google_llm import get_google_llm
+from code.mysql_lookup import parse_table_names, run_mysql_lookup
 from code.retrieve import retrieve
 
 
 SYSTEM_PROMPT = """You are a helpful procurement assistant.
-Use the retrieve_procurement_context tool for questions about procurement documents,
-vendors, pricing, payment terms, contracts, purchase orders, or policies. Use only
-retrieved context for document-specific claims. State when the retrieved context is
-insufficient, and cite source file names in your answer when they are available.
-You may answer simple conversational questions without calling the tool."""
+Use the supplier_contract tool for supplier contracts, contract clauses, vendor terms,
+pricing terms, payment terms, and procurement policy content indexed in MongoDB Atlas.
+Use the purchase_order tool only for purchase-order data in MySQL. Use the invoice tool
+only for invoice data in MySQL. For document-specific or database-specific claims, use
+the relevant tool and rely on the returned context. State when retrieved information is
+insufficient. You may answer simple conversational questions without calling a tool."""
 
 
 class ProcurementState(MessagesState):
@@ -34,6 +36,7 @@ class ProcurementState(MessagesState):
 
     current_question: NotRequired[str]
     retrieved_context: NotRequired[str]
+    tool_context: NotRequired[dict[str, str]]
     retrieval_count: NotRequired[int]
 
 
@@ -62,13 +65,49 @@ def build_procurement_graph(checkpointer: MemorySaver = CHECKPOINTER):
     """Build START -> llm_with_tool -> tools -> llm_with_tool -> END."""
     settings = Settings.from_environment()
 
-    @tool("retrieve_procurement_context")
-    def retrieve_procurement_context(query: str, limit: int = 4) -> str:
-        """Search indexed procurement files for context relevant to a user question."""
+    @tool("supplier_contract")
+    def supplier_contract(query: str, limit: int = 4) -> str:
+        """Supplier Contract: search MongoDB Atlas for supplier contract and policy details."""
         # The tool result is added to the message history before Gemini is called again.
         return format_context(retrieve(query, limit, settings))
 
-    tools = [retrieve_procurement_context]
+    @tool("purchase_order")
+    def purchase_order(query: str) -> str:
+        """Purchase Order: query configured MySQL purchase-order tables for factual details."""
+        if not settings.mysql_uri:
+            return "Purchase Order tool is not configured: set MYSQL_URI."
+        try:
+            return run_mysql_lookup(
+                question=query,
+                mysql_uri=settings.mysql_uri,
+                table_names=parse_table_names(
+                    settings.mysql_purchase_order_tables,
+                    "MYSQL_PURCHASE_ORDER_TABLES",
+                ),
+                domain="purchase order",
+            )
+        except Exception as error:
+            return f"Purchase Order lookup failed: {error}"
+
+    @tool("invoice")
+    def invoice(query: str) -> str:
+        """Invoice: query configured MySQL invoice tables for factual details."""
+        if not settings.mysql_uri:
+            return "Invoice tool is not configured: set MYSQL_URI."
+        try:
+            return run_mysql_lookup(
+                question=query,
+                mysql_uri=settings.mysql_uri,
+                table_names=parse_table_names(
+                    settings.mysql_invoice_tables,
+                    "MYSQL_INVOICE_TABLES",
+                ),
+                domain="invoice",
+            )
+        except Exception as error:
+            return f"Invoice lookup failed: {error}"
+
+    tools = [supplier_contract, purchase_order, invoice]
     llm_with_tools = get_google_llm().bind_tools(tools)
 
     def call_model(state: ProcurementState) -> dict[str, Any]:
@@ -88,19 +127,22 @@ def build_procurement_graph(checkpointer: MemorySaver = CHECKPOINTER):
 
     def update_retrieval_state(state: ProcurementState) -> dict[str, Any]:
         """Copy the latest tool output into project-specific state fields."""
-        latest_context = next(
-            (
-                str(message.content)
-                for message in reversed(state["messages"])
-                if isinstance(message, ToolMessage)
-                and message.name == "retrieve_procurement_context"
-            ),
-            "",
-        )
+        tool_messages = [
+            message
+            for message in state["messages"]
+            if isinstance(message, ToolMessage)
+            and message.name in {"supplier_contract", "purchase_order", "invoice"}
+        ]
+        latest_context = str(tool_messages[-1].content) if tool_messages else ""
+        tool_context = {
+            message.name: str(message.content)
+            for message in tool_messages
+        }
         # This metadata is checkpointed with messages and survives later turns.
         return {
             "retrieved_context": latest_context,
-            "retrieval_count": state.get("retrieval_count", 0) + 1,
+            "tool_context": tool_context,
+            "retrieval_count": len(tool_messages),
         }
 
     graph = StateGraph(ProcurementState)
