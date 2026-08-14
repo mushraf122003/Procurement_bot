@@ -15,3 +15,35 @@ Now I'm gonna define some of the important tools for this AI model. Rename and c
 The second tools should be names as "Purchase Order" which is used to lookup the Purchase order tables in MySQL Database and retrieve the Purchase order details from the MySQL database. create an connection using Langchain/ LangGraph to MySQL database and database context should be provided to llm model with one row on the each table including headers in order to generate the SQL script per the user's questions. once the user ask question in natural language, LLM should covert the question into the SQL query and retrieve data from MySQL database and answer the user in natural language.
 
 The second tools should be names as "Invoice" which is used to lookup the invoice tables in MySQL Database and retrieve the invoice details from the MySQL database. create an connection using Langchain/ LangGraph to MySQL database and database context should be provided to llm model with one row on the each table including headers in order to generate the SQL script per the user's questions. once the user ask question in natural language, LLM should covert the question into the SQL query and retrieve data from MySQL database and answer the user in natural language.
+
+<Streamlit UI prompt>
+Add a new Streamlit frontend to my existing procurement chatbot. Don't make changes to any of the file or existing code just create an new app.py file to create the Streamlit frontend.
+First inspect my project and find the existing `ask(question, thread_id)` function. **Do not modify or rewrite my existing LangGraph, LLM, tools, database logic, checkpointer**, terminal `main.py` or any of the file.** Reuse the existing `ask()` function.
+
+### UI
+Create a new `app.py` with:
+* Iron Man / JARVIS-inspired futuristic theme
+* Dark background with subtle cyan/blue futuristic elements
+* Clean HUD-style appearance
+* ChatGPT-like conversation layout
+* User and assistant messages displayed as chat messages
+* `st.chat_input()` at the bottom for questions
+* Clean, modern, uncluttered design
+* Title this application as "ZAF"
+
+### Thread ID
+The user should NOT enter a thread ID.
+Generate one automatically using Streamlit session state:
+```python
+if "thread_id" not in st.session_state:
+    st.session_state.thread_id = str(uuid.uuid4())
+```
+Reuse the same thread ID for every question in that Streamlit session.
+When the user enters a question:
+```python
+answer = ask(
+    question,
+    st.session_state.thread_id
+)
+```
+Maintain the displayed chat history using `st.session_state`.
