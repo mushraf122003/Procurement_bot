@@ -79,7 +79,8 @@ Schema context:
 
 User question: {question}
 """
-    generated_sql = str(get_google_llm().invoke(sql_prompt).content)
+    response= get_google_llm().invoke(sql_prompt)
+    generated_sql = response.content[0]["text"]
     safe_sql = _validate_read_only_sql(generated_sql, table_names)
     # SQLDatabase executes through SQLAlchemy; validation above prevents database mutations.
     result = database.run(safe_sql)

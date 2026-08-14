@@ -182,7 +182,7 @@ def ask(question: str, thread_id: str = "default") -> str:
         {"messages": [HumanMessage(content=question)]},
         config={"configurable": {"thread_id": thread_id}},
     )
-    return result["messages"][-1].content
+    return result["messages"][-1].content[0]["text"]
 
 
 def main() -> None:
