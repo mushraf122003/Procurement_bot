@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass
 from pathlib import Path
+from dotenv import load_dotenv
 
 
 # Resolve relative data paths from the project root.
@@ -28,6 +29,7 @@ class Settings:
     @classmethod
     def from_environment(cls) -> "Settings":
         # Keep Atlas credentials outside source control and fail before doing any work.
+        load_dotenv()
         mongodb_uri = os.environ.get("MONGODB_URI", "")
         if not mongodb_uri:
             raise ValueError("MONGODB_URI must be set before running this pipeline.")
