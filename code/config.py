@@ -40,7 +40,7 @@ class Settings:
             mongodb_collection=os.environ.get("MONGODB_COLLECTION", "documents"),
             vector_index_name=os.environ.get("MONGODB_VECTOR_INDEX", "vector_index"),
             embedding_model=os.environ.get(
-                "EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2"
+                "EMBEDDING_MODEL", "BAAI/bge-small-en-v1.5"
             ),
             data_dir=Path(os.environ.get("DATA_DIR", PROJECT_ROOT / "data")),
             chunk_size=int(os.environ.get("CHUNK_SIZE", "1000")),
