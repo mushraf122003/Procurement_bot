@@ -47,3 +47,6 @@ answer = ask(
 )
 ```
 Maintain the displayed chat history using `st.session_state`.
+
+Just make the requested change. I have already added a code file "Qwen_llm.py" where I have written a code similar to "google_llm.py" so instead of using get_google_llm() I want to use get_qwen_llm() so replace me code with get_qwen_llm() wherever I used get_google_llm().
+

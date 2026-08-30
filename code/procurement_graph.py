@@ -12,7 +12,7 @@ from langgraph.checkpoint.memory import MemorySaver
 from langgraph.prebuilt import ToolNode, tools_condition
 
 from code.config import Settings
-from code.google_llm import get_google_llm
+from code.Qwen_llm import get_qwen_llm
 from code.mysql_lookup import parse_table_names, run_mysql_lookup
 from code.retrieve import retrieve
 
@@ -108,7 +108,7 @@ def build_procurement_graph(checkpointer: MemorySaver = CHECKPOINTER):
             return f"Invoice lookup failed: {error}"
 
     tools = [supplier_contract, purchase_order, invoice]
-    llm_with_tools = get_google_llm().bind_tools(tools)
+    llm_with_tools = get_qwen_llm().bind_tools(tools)
 
     def call_model(state: ProcurementState) -> dict[str, Any]:
         # Gemini decides whether to answer immediately or emits a tool call.
@@ -182,7 +182,7 @@ def ask(question: str, thread_id: str = "default") -> str:
         {"messages": [HumanMessage(content=question)]},
         config={"configurable": {"thread_id": thread_id}},
     )
-    return result["messages"][-1].content[0]["text"]
+    return result["messages"][-1].content
 
 
 def main() -> None:

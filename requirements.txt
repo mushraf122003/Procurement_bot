@@ -22,3 +22,4 @@ pymupdf
 pandas
 msoffcrypto-tool
 openpyxl
+langchain_openai

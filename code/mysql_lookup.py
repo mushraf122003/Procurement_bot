@@ -7,7 +7,7 @@ from collections.abc import Sequence
 
 from langchain_community.utilities import SQLDatabase
 
-from code.google_llm import get_google_llm
+from code.Qwen_llm import get_qwen_llm
 
 
 FORBIDDEN_SQL = re.compile(
@@ -79,8 +79,8 @@ Schema context:
 
 User question: {question}
 """
-    response= get_google_llm().invoke(sql_prompt)
-    generated_sql = response.content[0]["text"]
+    response= get_qwen_llm().invoke(sql_prompt)
+    generated_sql = response.content
     safe_sql = _validate_read_only_sql(generated_sql, table_names)
     # SQLDatabase executes through SQLAlchemy; validation above prevents database mutations.
     result = database.run(safe_sql)
