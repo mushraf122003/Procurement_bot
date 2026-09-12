@@ -1,7 +1,7 @@
 """Streamlit frontend for the ZAF procurement chatbot.
 
 This file only provides the UI layer. It reuses the existing LangGraph
-chatbot entry point: ``ask(question, thread_id)`` from ``code.procurement_graph``.
+chatbot entry point: ``ask(question, thread_id)`` from ``scr_code.procurement_graph``.
 """
 
 from __future__ import annotations
@@ -10,7 +10,8 @@ import uuid
 
 import streamlit as st
 
-from code.procurement_graph import ask
+# pyrefly: ignore [missing-import]
+from scr_code.procurement_graph import ask
 
 
 st.set_page_config(

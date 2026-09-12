@@ -7,7 +7,8 @@ from collections.abc import Sequence
 
 from langchain_community.utilities import SQLDatabase
 
-from code.google_llm import get_google_llm
+# pyrefly: ignore [missing-import]
+from scr_code.google_llm import get_google_llm
 
 
 FORBIDDEN_SQL = re.compile(

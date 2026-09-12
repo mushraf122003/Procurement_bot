@@ -1,7 +1,7 @@
 
 import argparse
 
-from code.procurement_graph import ask
+from scr_code.procurement_graph import ask
 
 def main():
     print("Let me get the information...")

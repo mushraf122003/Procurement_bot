@@ -7,8 +7,10 @@ from typing import Any
 
 from pymongo import MongoClient
 
-from .config import Settings
-from .ingest import get_embeddings
+# pyrefly: ignore [missing-import]
+from scr_code.config import Settings
+# pyrefly: ignore [missing-import]
+from scr_code.ingest import get_embeddings
 
 
 def retrieve(query: str, limit: int, settings: Settings) -> list[dict[str, Any]]:

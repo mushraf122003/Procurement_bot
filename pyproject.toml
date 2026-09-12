@@ -28,4 +28,5 @@ dependencies = [
     "streamlit>=1.61.1",
     "torchvision>=0.28.0",
     "langchain-openai>=1.6.0",
+    "langsmith>=0.10.10",
 ]

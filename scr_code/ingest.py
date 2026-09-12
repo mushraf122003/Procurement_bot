@@ -16,7 +16,8 @@ from pymongo import MongoClient, UpdateOne
 from pymongo.collection import Collection
 from pymongo.operations import SearchIndexModel
 
-from code.config import Settings
+# pyrefly: ignore [missing-import]
+from scr_code.config import Settings
 
 
 LOGGER = logging.getLogger(__name__)

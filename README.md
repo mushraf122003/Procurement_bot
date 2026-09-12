@@ -2,7 +2,7 @@
 
 ## Agent tools
 
-`code/procurement_graph.py` gives the Gemini agent three tool choices:
+`scr_code/procurement_graph.py` gives the Gemini agent three tool choices:
 
 - `supplier_contract`: retrieves supplier contract details from MongoDB Atlas Vector Search.
 - `purchase_order`: generates and runs a read-only query against allowed purchase-order tables in MySQL.
@@ -13,5 +13,5 @@ Configure `MYSQL_URI`, `MYSQL_PURCHASE_ORDER_TABLES`, and `MYSQL_INVOICE_TABLES`
 Run a conversation using the same `--thread-id` to retain LangGraph checkpoint memory for that conversation:
 
 ```powershell
-python -m code.procurement_graph --thread-id vendor-review-001 "Show purchase orders for ACME."
+python -m scr_code.procurement_graph --thread-id vendor-review-001 "Show purchase orders for ACME."
 ```
