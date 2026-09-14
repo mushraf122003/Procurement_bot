@@ -47,3 +47,91 @@ answer = ask(
 )
 ```
 Maintain the displayed chat history using `st.session_state`.
+
+litellm gateway integration:
+I want to integrate the following functions of llm gateways (Caching, Smart routing, latency based routing, fallback) for my AI model By using litellm and langchain_litellm.
+Caching - set the caching=True and the cache should be stored locally. example: litellm.cache = Cache(type="local").
+latency based routing - should pick the fastest model based on the model name provided. example: routing_strategy="latency-based-routing"
+.
+Fallback - If any of the model cause any error then should automatically pick the next available model.
+Smart routing - Define a function to classify the purpose of the question like 'general', 'code' and 'RAG'. this classification of function should be performed by the model 'gemini-3.7-flash' and based on the output of this task classification function we should call the model. The code model should be used to generate the SQL scripts.
+
+Use the following model for the specific tasks and fallback:
+model_list = [
+    {
+        "model_name": "code",
+        "litellm_params": {
+            "model": "groq/openai/gpt-oss-120b",
+            "api_key": os.getenv("GROQ_API_KEY"),
+        },
+        "model_info": {
+            "id": "model:groq/openai/gpt-oss-120b"
+        }
+    },
+    #Fallback model for code
+    {
+        "model_name": "code",
+        "litellm_params": {
+            "model": "groq/openai/gpt-oss-20b",
+            "api_key": os.getenv("GROQ_API_KEY"),
+        },
+        "model_info": {
+            "id": "model:groq/openai/gpt-oss-20b"
+        }
+    },
+    {
+        "model_name": "general",
+        "litellm_params": {
+            "model": "groq/qwen/qwen3.6-27b",
+            "api_key": os.getenv("GROQ_API_KEY"),
+        },
+        "model_info": {
+            "id": "model:groq/qwen/qwen3.6-27b"
+        }
+    },
+    #Fallback model for general
+    {
+        "model_name": "general",
+        "litellm_params": {
+            "model": "groq/qwen/qwen3.8-27b",
+            "api_key": os.getenv("GROQ_API_KEY"),
+        },
+        "model_info": {
+            "id": "model:groq/qwen/qwen3.8-27b"
+        }
+    },
+    {
+        "model_name": "RAG",
+        "litellm_params": {
+            "model": "gemini/gemini-3.7-flash",
+            "api_key": os.getenv("GOOGLE_API_KEY"),
+        },
+        "model_info": {
+            "id": "model:gemini/gemini-3.7-flash"
+        }
+    },
+    #Fallback model for RAG
+    {
+        "model_name": "RAG",
+        "litellm_params": {
+            "model": "gemini/gemini-3.6-flash",
+            "api_key": os.getenv("GOOGLE_API_KEY"),
+        },
+        "model_info": {
+            "id": "model:gemini/gemini-3.6-flash"
+        }
+    },
+]
+
+
+
+
+
+
+
+
+
+
+
+
+

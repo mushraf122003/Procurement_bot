@@ -29,4 +29,6 @@ dependencies = [
     "torchvision>=0.28.0",
     "langchain-openai>=1.6.0",
     "langsmith>=0.10.10",
+    "litellm>=1.82.9",
+    "langchain-litellm>=0.6.4",
 ]

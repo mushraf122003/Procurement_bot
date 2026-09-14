@@ -14,7 +14,7 @@ from langgraph.prebuilt import ToolNode, tools_condition
 # pyrefly: ignore [missing-import]
 from scr_code.config import Settings
 # pyrefly: ignore [missing-import]
-from scr_code.google_llm import get_google_llm
+from scr_code.llm_gateway import TaskType, classify_task, get_response_text, get_routed_llm
 # pyrefly: ignore [missing-import]
 from scr_code.mysql_lookup import parse_table_names, run_mysql_lookup
 # pyrefly: ignore [missing-import]
@@ -42,6 +42,7 @@ class ProcurementState(MessagesState):
     retrieved_context: NotRequired[str]
     tool_context: NotRequired[dict[str, str]]
     retrieval_count: NotRequired[int]
+    task_type: NotRequired[TaskType]
 
 
 # MemorySaver stores a separate checkpoint history for each configured thread_id.
@@ -112,13 +113,9 @@ def build_procurement_graph(checkpointer: MemorySaver = CHECKPOINTER):
             return f"Invoice lookup failed: {error}"
 
     tools = [supplier_contract, purchase_order, invoice]
-    llm_with_tools = get_google_llm().bind_tools(tools)
 
     def call_model(state: ProcurementState) -> dict[str, Any]:
-        # Gemini decides whether to answer immediately or emits a tool call.
-        response = llm_with_tools.invoke(
-            [SystemMessage(content=SYSTEM_PROMPT), *state["messages"]]
-        )
+        # Classify each new user turn once, then reuse that route after tool calls.
         latest_question = next(
             (
                 str(message.content)
@@ -127,7 +124,21 @@ def build_procurement_graph(checkpointer: MemorySaver = CHECKPOINTER):
             ),
             state.get("current_question", ""),
         )
-        return {"messages": [response], "current_question": latest_question}
+        if latest_question != state.get("current_question"):
+            task_type = classify_task(latest_question)
+        else:
+            task_type = state.get("task_type", "RAG")
+
+        # The selected model decides whether to answer immediately or call a tool.
+        llm_with_tools = get_routed_llm(task_type).bind_tools(tools)
+        response = llm_with_tools.invoke(
+            [SystemMessage(content=SYSTEM_PROMPT), *state["messages"]]
+        )
+        return {
+            "messages": [response],
+            "current_question": latest_question,
+            "task_type": task_type,
+        }
 
     def update_retrieval_state(state: ProcurementState) -> dict[str, Any]:
         """Copy the latest tool output into project-specific state fields."""
@@ -186,7 +197,7 @@ def ask(question: str, thread_id: str = "default") -> str:
         {"messages": [HumanMessage(content=question)]},
         config={"configurable": {"thread_id": thread_id}},
     )
-    return result["messages"][-1].content[0]["text"]
+    return get_response_text(result["messages"][-1])
 
 
 def main() -> None:

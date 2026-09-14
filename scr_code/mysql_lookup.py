@@ -7,8 +7,7 @@ from collections.abc import Sequence
 
 from langchain_community.utilities import SQLDatabase
 
-# pyrefly: ignore [missing-import]
-from scr_code.google_llm import get_google_llm
+from scr_code.llm_gateway import get_response_text, get_routed_llm
 
 
 FORBIDDEN_SQL = re.compile(
@@ -80,8 +79,9 @@ Schema context:
 
 User question: {question}
 """
-    response= get_google_llm().invoke(sql_prompt)
-    generated_sql = response.content[0]["text"]
+    # SQL generation is always handled by the gateway's dedicated code model group.
+    response = get_routed_llm("code").invoke(sql_prompt)
+    generated_sql = get_response_text(response)
     safe_sql = _validate_read_only_sql(generated_sql, table_names)
     # SQLDatabase executes through SQLAlchemy; validation above prevents database mutations.
     result = database.run(safe_sql)
