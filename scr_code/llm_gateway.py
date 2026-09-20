@@ -13,7 +13,7 @@ from litellm import Cache, Router
 
 TaskType = Literal["general", "code", "RAG"]
 _VALID_TASK_TYPES = {"general", "code", "RAG"}
-_CLASSIFIER_MODEL = "gemini/gemini-3.7-flash"
+_CLASSIFIER_MODEL = "gemini/gemini-3.6-flash"
 _ROUTER: Router | None = None
 
 # Load local credentials before LiteLLM reads them into the model deployments.
@@ -41,18 +41,18 @@ MODEL_LIST: list[dict[str, Any]] = [
     {
         "model_name": "general",
         "litellm_params": {
-            "model": "groq/qwen/qwen3.6-27b",
+            "model": "groq/openai/gpt-oss-20b",
             "api_key": os.getenv("GROQ_API_KEY"),
         },
-        "model_info": {"id": "model:groq/qwen/qwen3.6-27b"},
+        "model_info": {"id": "model:groq/openai/gpt-oss-20b"},
     },
     {
         "model_name": "general",
         "litellm_params": {
-            "model": "groq/qwen/qwen3.8-27b",
-            "api_key": os.getenv("GROQ_API_KEY"),
+            "model": "gemini/gemini-3.6-flash",
+            "api_key": os.getenv("GOOGLE_API_KEY"),
         },
-        "model_info": {"id": "model:groq/qwen/qwen3.8-27b"},
+        "model_info": {"id": "gemini/gemini-3.6-flash"},
     },
     {
         "model_name": "RAG",
